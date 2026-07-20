@@ -1,0 +1,72 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-4">
+        <div class="card shadow-lg fade-in">
+            <div class="card-body">
+                <h4><i class="fas fa-bullseye text-primary me-2"></i>Create Budget</h4>
+                <hr>
+                <form method="post">
+                    {% csrf_token %}
+                    {{ form|crispy }}
+                    <button type="submit" class="btn btn-primary w-100 mt-3">
+                        <i class="fas fa-plus-circle me-2"></i>Create Budget
+                    </button>
+                </form>
+            </div>
+        </div>
+        <div class="card mt-4 fade-in">
+            <div class="card-body">
+                <h6 class="text-muted">Current Month: {{ current_month_name }} {{ current_year }}</h6>
+                <hr>
+                <div class="d-flex justify-content-between">
+                    <span>Total Budgeted:</span>
+                    <span class="fw-bold">${{ total_budgeted|floatformat:2 }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-8">
+        <div class="card fade-in">
+            <div class="card-header">
+                <h5 class="mb-0">💰 Monthly Budgets</h5>
+            </div>
+            <div class="card-body">
+                <div class="row g-3">
+                    {% for budget in budgets %}
+                    <div class="col-md-6">
+                        <div class="p-3 border rounded">
+                            <div class="d-flex justify-content-between">
+                                <h6>{{ budget.budget.category.icon }} {{ budget.budget.category.name }}</h6>
+                                <span class="badge bg-{{ budget.alert_status }}">
+                                    {{ budget.alert_message }}
+                                </span>
+                            </div>
+                            <div class="progress mb-2">
+                                <div class="progress-bar bg-{{ budget.alert_status }}" 
+                                     style="width: {{ budget.progress }}%">
+                                </div>
+                            </div>
+                            <div class="d-flex justify-content-between small">
+                                <span>Spent: ${{ budget.spent|floatformat:2 }}</span>
+                                <span>Remaining: ${{ budget.remaining|floatformat:2 }}</span>
+                            </div>
+                            <div class="text-muted small">Budgeted: ${{ budget.budget.amount|floatformat:2 }}</div>
+                            <div class="mt-2 alert alert-{{ budget.alert_status }} alert-sm">
+                                <small>{{ budget.alert_text }}</small>
+                            </div>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="col-12 text-center py-4 text-muted">
+                        No budgets created for this month.
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

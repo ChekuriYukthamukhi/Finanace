@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-4">
+        <div class="card shadow-lg fade-in">
+            <div class="card-body">
+                <h4><i class="fas fa-university text-primary me-2"></i>Add Account</h4>
+                <hr>
+                <form method="post">
+                    {% csrf_token %}
+                    {{ form|crispy }}
+                    <button type="submit" class="btn btn-primary w-100 mt-3">
+                        <i class="fas fa-plus-circle me-2"></i>Add Account
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-8">
+        <div class="card fade-in">
+            <div class="card-header d-flex justify-content-between">
+                <h5 class="mb-0">🏦 Your Accounts</h5>
+                <span>Total: ${{ total_balance|floatformat:2 }}</span>
+            </div>
+            <div class="card-body">
+                <div class="row g-3">
+                    {% for account in accounts %}
+                    <div class="col-md-6">
+                        <div class="p-3 border rounded card-hover" style="border-left: 5px solid {{ account.color }} !important;">
+                            <div class="d-flex justify-content-between">
+                                <h6>{{ account.name }}</h6>
+                                <span class="badge bg-secondary">{{ account.get_type_display }}</span>
+                            </div>
+                            <h4 class="text-primary">${{ account.balance|floatformat:2 }}</h4>
+                            <small class="text-muted">{{ account.currency }}</small>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="col-12 text-center py-4 text-muted">
+                        No accounts yet.
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

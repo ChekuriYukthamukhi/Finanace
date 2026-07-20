@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card shadow-lg fade-in">
+            <div class="card-body p-5">
+                <div class="text-center mb-4">
+                    <i class="fas fa-edit text-warning fa-3x"></i>
+                    <h3 class="mt-2">Edit Transaction</h3>
+                </div>
+                <form method="post">
+                    {% csrf_token %}
+                    {{ form|crispy }}
+                    <button type="submit" class="btn btn-warning w-100 py-2 mt-3">
+                        <i class="fas fa-save me-2"></i>Update
+                    </button>
+                </form>
+                <div class="text-center mt-3">
+                    <a href="{% url 'transaction_list' %}" class="text-muted">
+                        <i class="fas fa-arrow-left me-1"></i>Back
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

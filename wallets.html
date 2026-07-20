@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-4">
+        <div class="card shadow-lg fade-in">
+            <div class="card-body">
+                <h4><i class="fas fa-wallet text-primary me-2"></i>Add Wallet</h4>
+                <hr>
+                <form method="post">
+                    {% csrf_token %}
+                    {{ form|crispy }}
+                    <button type="submit" class="btn btn-primary w-100 mt-3">
+                        <i class="fas fa-plus-circle me-2"></i>Add Wallet
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-8">
+        <div class="card fade-in">
+            <div class="card-header d-flex justify-content-between">
+                <h5 class="mb-0">💰 Your Wallets</h5>
+                <span>Total: ${{ total_balance|floatformat:2 }}</span>
+            </div>
+            <div class="card-body">
+                <div class="row g-3">
+                    {% for wallet in wallets %}
+                    <div class="col-md-6">
+                        <div class="p-3 border rounded card-hover">
+                            <div class="d-flex justify-content-between">
+                                <h6>{{ wallet.name }}</h6>
+                                {% if wallet.is_primary %}
+                                    <span class="badge bg-success">Primary</span>
+                                {% endif %}
+                            </div>
+                            <h4 class="text-primary">${{ wallet.balance|floatformat:2 }}</h4>
+                            <small class="text-muted">{{ wallet.currency }}</small>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="col-12 text-center py-4 text-muted">
+                        No wallets yet.
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

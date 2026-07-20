@@ -1,0 +1,73 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h2 class="mb-4"><i class="fas fa-file-alt text-primary me-2"></i>Reports</h2>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card stat-card fade-in">
+            <h6 class="text-muted">Total Income</h6>
+            <h3 class="text-success">${{ total_income|floatformat:2 }}</h3>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card stat-card fade-in">
+            <h6 class="text-muted">Total Expenses</h6>
+            <h3 class="text-danger">${{ total_expenses|floatformat:2 }}</h3>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card stat-card fade-in">
+            <h6 class="text-muted">Net Balance</h6>
+            <h3 class="text-primary">${{ balance|floatformat:2 }}</h3>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-md-6">
+        <div class="card fade-in">
+            <div class="card-header">
+                <h5 class="mb-0">📊 Top Spending Categories</h5>
+            </div>
+            <div class="card-body">
+                <div class="list-group">
+                    {% for cat in top_categories %}
+                    <div class="list-group-item d-flex justify-content-between">
+                        <span>{{ cat.category__name|default:"Uncategorized" }}</span>
+                        <span class="fw-bold text-danger">${{ cat.total|floatformat:2 }}</span>
+                    </div>
+                    {% empty %}
+                    <div class="text-center py-3 text-muted">No data</div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card fade-in">
+            <div class="card-header">
+                <h5 class="mb-0">📋 Quick Actions</h5>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <a href="{% url 'export_csv' %}" class="btn btn-success">
+                        <i class="fas fa-file-csv me-2"></i>Export CSV
+                    </a>
+                    <a href="{% url 'pdf_report' %}" class="btn btn-danger">
+                        <i class="fas fa-file-pdf me-2"></i>Export PDF
+                    </a>
+                    <a href="{% url 'currency_converter' %}" class="btn btn-info">
+                        <i class="fas fa-exchange-alt me-2"></i>Currency Converter
+                    </a>
+                    <a href="{% url 'spending_patterns' %}" class="btn btn-primary">
+                        <i class="fas fa-chart-line me-2"></i>Spending Patterns
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

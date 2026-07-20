@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-4">
+        <div class="card shadow-lg fade-in">
+            <div class="card-body">
+                <h4><i class="fas fa-bullseye text-success me-2"></i>New Goal</h4>
+                <hr>
+                <form method="post">
+                    {% csrf_token %}
+                    {{ form|crispy }}
+                    <button type="submit" class="btn btn-success w-100 mt-3">
+                        <i class="fas fa-plus-circle me-2"></i>Create Goal
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-8">
+        <div class="card fade-in">
+            <div class="card-header d-flex justify-content-between">
+                <h5 class="mb-0">🎯 Savings Goals</h5>
+                <span>{{ goals|length }} goals</span>
+            </div>
+            <div class="card-body">
+                <div class="row g-3">
+                    {% for goal in goals %}
+                    <div class="col-md-6">
+                        <div class="p-3 border rounded text-center card-hover">
+                            <div class="display-4">{{ goal.icon }}</div>
+                            <h5>{{ goal.name }}</h5>
+                            <div class="progress" style="height: 10px;">
+                                <div class="progress-bar bg-success" style="width: {{ goal.progress }}%"></div>
+                            </div>
+                            <div class="mt-2">
+                                <span class="fw-bold">${{ goal.current_amount|floatformat:2 }}</span>
+                                <span class="text-muted">/ ${{ goal.target_amount|floatformat:2 }}</span>
+                            </div>
+                            <small class="text-muted">{{ goal.days_left }} days remaining</small>
+                            {% if goal.is_completed %}
+                                <span class="badge bg-success d-block mt-2">✅ Completed</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="col-12 text-center py-4 text-muted">
+                        No savings goals yet
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            <div class="card-footer d-flex justify-content-between">
+                <span>Total Target: ${{ total_target|floatformat:2 }}</span>
+                <span>Total Saved: ${{ total_saved|floatformat:2 }}</span>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

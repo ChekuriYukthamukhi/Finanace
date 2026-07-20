@@ -1,0 +1,118 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="fas fa-list text-primary me-2"></i>Transactions</h2>
+    <div>
+        <a href="{% url 'export_csv' %}" class="btn btn-success me-2">
+            <i class="fas fa-file-csv me-2"></i>Export
+        </a>
+        <a href="{% url 'pdf_report' %}" class="btn btn-danger me-2">
+            <i class="fas fa-file-pdf me-2"></i>PDF
+        </a>
+        <a href="{% url 'add_transaction' %}" class="btn btn-primary">
+            <i class="fas fa-plus-circle me-2"></i>Add
+        </a>
+    </div>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-md-3">
+        <div class="card stat-card">
+            <h6 class="text-muted">Income</h6>
+            <h4 class="text-success">${{ total_income|floatformat:2 }}</h4>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card stat-card">
+            <h6 class="text-muted">Expenses</h6>
+            <h4 class="text-danger">${{ total_expenses|floatformat:2 }}</h4>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card stat-card">
+            <h6 class="text-muted">Balance</h6>
+            <h4 class="text-primary">${{ balance|floatformat:2 }}</h4>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card stat-card">
+            <h6 class="text-muted">Count</h6>
+            <h4>{{ transactions.count }}</h4>
+        </div>
+    </div>
+</div>
+
+<div class="card mb-4">
+    <div class="card-body">
+        <form method="get" class="row g-3">
+            <div class="col-md-3">
+                <select name="type" class="form-select">
+                    <option value="all">All Types</option>
+                    <option value="income" {% if filter_type == 'income' %}selected{% endif %}>Income</option>
+                    <option value="expense" {% if filter_type == 'expense' %}selected{% endif %}>Expense</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <select name="period" class="form-select">
+                    <option value="all">All Time</option>
+                    <option value="week" {% if period == 'week' %}selected{% endif %}>Last 7 Days</option>
+                    <option value="month" {% if period == 'month' %}selected{% endif %}>Last 30 Days</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <input type="text" name="search" class="form-control" placeholder="Search..." value="{{ search }}">
+            </div>
+            <div class="col-md-3">
+                <button type="submit" class="btn btn-primary w-100">
+                    <i class="fas fa-filter me-2"></i>Apply
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Date</th>
+                        <th>Category</th>
+                        <th>Description</th>
+                        <th>Type</th>
+                        <th class="text-end">Amount</th>
+                        <th class="text-center">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for t in transactions %}
+                    <tr>
+                        <td>{{ t.date|date:"M d, Y" }}</td>
+                        <td><span class="badge bg-light text-dark">{{ t.category.icon }} {{ t.category.name }}</span></td>
+                        <td>{{ t.description|default:"-" }}</td>
+                        <td><span class="badge bg-{% if t.type == 'income' %}success{% else %}danger{% endif %}">{{ t.get_type_display }}</span></td>
+                        <td class="text-end {% if t.type == 'income' %}amount-positive{% else %}amount-negative{% endif %}">
+                            ${{ t.amount|floatformat:2 }}
+                        </td>
+                        <td class="text-center">
+                            <a href="{% url 'edit_transaction' t.id %}" class="btn btn-sm btn-outline-primary me-1">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                            <a href="{% url 'delete_transaction' t.id %}" class="btn btn-sm btn-outline-danger">
+                                <i class="fas fa-trash"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="text-center py-4 text-muted">No transactions found</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,105 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card shadow-lg fade-in">
+            <div class="card-body p-5">
+                <div class="text-center mb-4">
+                    <i class="fas fa-exchange-alt text-primary fa-3x"></i>
+                    <h3 class="mt-2">Currency Converter</h3>
+                    <p class="text-muted">Convert between currencies</p>
+                </div>
+                
+                <form id="currencyForm">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label class="form-label">Amount</label>
+                        <input type="number" id="amount" class="form-control" placeholder="Enter amount" required step="0.01">
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <label class="form-label">From</label>
+                            <select id="fromCurrency" class="form-select">
+                                <option value="USD">USD - US Dollar</option>
+                                <option value="EUR">EUR - Euro</option>
+                                <option value="GBP">GBP - British Pound</option>
+                                <option value="INR">INR - Indian Rupee</option>
+                                <option value="CAD">CAD - Canadian Dollar</option>
+                                <option value="AUD">AUD - Australian Dollar</option>
+                                <option value="JPY">JPY - Japanese Yen</option>
+                                <option value="CNY">CNY - Chinese Yuan</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">To</label>
+                            <select id="toCurrency" class="form-select">
+                                <option value="EUR">EUR - Euro</option>
+                                <option value="USD">USD - US Dollar</option>
+                                <option value="GBP">GBP - British Pound</option>
+                                <option value="INR">INR - Indian Rupee</option>
+                                <option value="CAD">CAD - Canadian Dollar</option>
+                                <option value="AUD">AUD - Australian Dollar</option>
+                                <option value="JPY">JPY - Japanese Yen</option>
+                                <option value="CNY">CNY - Chinese Yuan</option>
+                            </select>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100 mt-3">
+                        <i class="fas fa-calculator me-2"></i>Convert
+                    </button>
+                </form>
+                
+                <div id="result" class="mt-4 text-center" style="display:none;">
+                    <h4>Converted Amount:</h4>
+                    <h2 class="text-success" id="convertedAmount"></h2>
+                    <p class="text-muted">Rate: <span id="rate"></span></p>
+                </div>
+                
+                <div class="text-center mt-3">
+                    <a href="{% url 'reports' %}" class="text-muted">
+                        <i class="fas fa-arrow-left me-1"></i>Back to Reports
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.getElementById('currencyForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const amount = document.getElementById('amount').value;
+    const fromCurrency = document.getElementById('fromCurrency').value;
+    const toCurrency = document.getElementById('toCurrency').value;
+    
+    if (!amount || amount <= 0) {
+        alert('Please enter a valid amount');
+        return;
+    }
+    
+    fetch('{% url "currency_converter" %}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+        },
+        body: `amount=${amount}&from_currency=${fromCurrency}&to_currency=${toCurrency}`
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            document.getElementById('convertedAmount').textContent = `${data.converted} ${toCurrency}`;
+            document.getElementById('rate').textContent = `1 ${fromCurrency} = ${data.rate} ${toCurrency}`;
+            document.getElementById('result').style.display = 'block';
+        } else {
+            alert('Error: ' + data.error);
+        }
+    })
+    .catch(error => {
+        alert('Error: ' + error);
+    });
+});
+</script>
+{% endblock %}

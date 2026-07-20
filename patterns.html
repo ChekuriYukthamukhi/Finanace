@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h2 class="mb-4"><i class="fas fa-chart-line text-primary me-2"></i>Spending Patterns</h2>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card stat-card fade-in">
+            <h6 class="text-muted">Total Transactions</h6>
+            <h3 class="text-primary">{{ transaction_count }}</h3>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card stat-card fade-in">
+            <h6 class="text-muted">Average Spending per Transaction</h6>
+            <h3 class="text-warning">${{ avg_spending|floatformat:2 }}</h3>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card stat-card fade-in">
+            <h6 class="text-muted">Daily Average Spending</h6>
+            <h3 class="text-info">${{ daily_avg|floatformat:2 }}</h3>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-md-6">
+        <div class="card fade-in">
+            <div class="card-header">
+                <h5 class="mb-0">📊 Top Category</h5>
+            </div>
+            <div class="card-body text-center">
+                {% if top_category %}
+                    <h1 class="display-1">{{ top_category.category__name|default:"Uncategorized" }}</h1>
+                    <h3 class="text-danger">${{ top_category.total|floatformat:2 }}</h3>
+                {% else %}
+                    <p class="text-muted">No data</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card fade-in">
+            <div class="card-header">
+                <h5 class="mb-0">📈 Monthly Breakdown</h5>
+            </div>
+            <div class="card-body">
+                <div class="list-group">
+                    {% for m in monthly %}
+                    <div class="list-group-item d-flex justify-content-between">
+                        <span>{{ m.month|date:"F Y" }}</span>
+                        <span class="fw-bold">${{ m.total|floatformat:2 }}</span>
+                    </div>
+                    {% empty %}
+                    <div class="text-center py-3 text-muted">No data</div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

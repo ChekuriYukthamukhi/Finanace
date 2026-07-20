@@ -1,0 +1,284 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-8">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+    <h2 class="mb-1">👋 Welcome to MoneyMuse, {{ user.username }}!</h2>
+    <p class="text-muted">{{ notifications.count }} notifications</p>
+    </div>
+            <a href="{% url 'add_transaction' %}" class="btn btn-primary">
+                <i class="fas fa-plus-circle me-2"></i>Add Transaction
+            </a>
+        </div>
+
+        <!-- Stats Cards -->
+        <div class="row g-4 mb-4">
+            <div class="col-md-3">
+                <div class="stat-card fade-in">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h6 class="text-muted">Balance</h6>
+                            <h3 class="text-primary">${{ total_balance|floatformat:2 }}</h3>
+                        </div>
+                        <div class="stat-icon bg-primary bg-opacity-10 text-primary">
+                            <i class="fas fa-wallet"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card fade-in">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h6 class="text-muted">Income</h6>
+                            <h3 class="text-success">${{ total_income|floatformat:2 }}</h3>
+                        </div>
+                        <div class="stat-icon bg-success bg-opacity-10 text-success">
+                            <i class="fas fa-arrow-up"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card fade-in">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h6 class="text-muted">Expenses</h6>
+                            <h3 class="text-danger">${{ total_expenses|floatformat:2 }}</h3>
+                        </div>
+                        <div class="stat-icon bg-danger bg-opacity-10 text-danger">
+                            <i class="fas fa-arrow-down"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card fade-in">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h6 class="text-muted">Transactions</h6>
+                            <h3 class="text-info">{{ transaction_count }}</h3>
+                        </div>
+                        <div class="stat-icon bg-info bg-opacity-10 text-info">
+                            <i class="fas fa-receipt"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts -->
+        <div class="row g-4 mb-4">
+            <div class="col-md-6">
+                <div class="card card-hover fade-in">
+                    <div class="card-header">
+                        <h5 class="mb-0"><i class="fas fa-chart-pie text-primary me-2"></i>Spending by Category</h5>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="pieChart" height="250"></canvas>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card card-hover fade-in">
+                    <div class="card-header">
+                        <h5 class="mb-0"><i class="fas fa-chart-bar text-primary me-2"></i>Monthly Overview</h5>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="barChart" height="250"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Budget Progress -->
+        <div class="card card-hover fade-in mb-4">
+            <div class="card-header d-flex justify-content-between">
+                <h5 class="mb-0"><i class="fas fa-bullseye text-primary me-2"></i>Budget Progress</h5>
+                <a href="{% url 'budgets' %}" class="btn btn-sm btn-outline-primary">View All</a>
+            </div>
+            <div class="card-body">
+                <div class="row g-3">
+                    {% for budget in budget_progress %}
+                    <div class="col-md-6">
+                        <div class="p-2">
+                            <div class="d-flex justify-content-between mb-1">
+                                <span>{{ budget.icon }} {{ budget.category }}</span>
+                                <span>${{ budget.spent|floatformat:2 }} / ${{ budget.budgeted|floatformat:2 }}</span>
+                            </div>
+                            <div class="progress">
+                                <div class="progress-bar bg-{{ budget.status }}" 
+                                     style="width: {{ budget.progress }}%"
+                                     role="progressbar"
+                                     aria-valuenow="{{ budget.progress }}" 
+                                     aria-valuemin="0" 
+                                     aria-valuemax="100">
+                                </div>
+                            </div>
+                            <div class="mt-1">
+                                <span class="badge bg-{{ budget.status }}">{{ budget.alert }}</span>
+                                <span class="text-muted small">{{ budget.message }}</span>
+                            </div>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="text-center py-3 text-muted">
+                        <a href="{% url 'budgets' %}">Create your first budget</a>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Right Sidebar -->
+    <div class="col-lg-4">
+        <!-- Notifications -->
+        <div class="card card-hover fade-in mb-4">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-bell text-primary me-2"></i>Notifications</h5>
+            </div>
+            <div class="card-body">
+                {% for notification in notifications %}
+                <div class="alert alert-{{ notification.type }} alert-sm">
+                    <h6 class="alert-heading">{{ notification.title }}</h6>
+                    <p class="mb-0 small">{{ notification.message }}</p>
+                </div>
+                {% empty %}
+                <p class="text-muted text-center">No new notifications</p>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Savings Goals -->
+        <div class="card card-hover fade-in mb-4">
+            <div class="card-header d-flex justify-content-between">
+                <h5 class="mb-0"><i class="fas fa-bullseye text-success me-2"></i>Savings Goals</h5>
+                <a href="{% url 'savings_goals' %}" class="btn btn-sm btn-outline-success">View All</a>
+            </div>
+            <div class="card-body">
+                {% for goal in goals %}
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between">
+                        <span>{{ goal.icon }} {{ goal.name }}</span>
+                        <span>${{ goal.current_amount|floatformat:2 }} / ${{ goal.target_amount|floatformat:2 }}</span>
+                    </div>
+                    <div class="progress">
+                        <div class="progress-bar bg-success" 
+                             style="width: {{ goal.progress }}%"
+                             role="progressbar"
+                             aria-valuenow="{{ goal.progress }}" 
+                             aria-valuemin="0" 
+                             aria-valuemax="100">
+                        </div>
+                    </div>
+                    <small class="text-muted">{{ goal.days_left }} days remaining</small>
+                </div>
+                {% empty %}
+                <p class="text-muted text-center">
+                    <a href="{% url 'savings_goals' %}">Set your first savings goal</a>
+                </p>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Recent Transactions -->
+        <div class="card card-hover fade-in">
+            <div class="card-header d-flex justify-content-between">
+                <h5 class="mb-0"><i class="fas fa-clock text-primary me-2"></i>Recent</h5>
+                <a href="{% url 'transaction_list' %}" class="btn btn-sm btn-outline-primary">View All</a>
+            </div>
+            <div class="card-body p-0">
+                <div class="list-group list-group-flush">
+                    {% for t in recent_transactions %}
+                    <div class="list-group-item d-flex justify-content-between align-items-center">
+                        <div>
+                            <span class="badge bg-light text-dark me-2">{{ t.category.icon }}</span>
+                            <small>{{ t.description|default:t.category.name }}</small>
+                        </div>
+                        <span class="{% if t.type == 'income' %}amount-positive{% else %}amount-negative{% endif %}">
+                            {% if t.type == 'income' %}+{% else %}-{% endif %}${{ t.amount|floatformat:2 }}
+                        </span>
+                    </div>
+                    {% empty %}
+                    <div class="text-center py-4 text-muted">No transactions yet</div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Pie Chart
+    const pieCtx = document.getElementById('pieChart').getContext('2d');
+    const pieData = {
+        labels: [{% for name, val in category_data.items %}'{{ name }}',{% endfor %}],
+        datasets: [{
+            data: [{% for name, val in category_data.items %}{{ val }},{% endfor %}],
+            backgroundColor: ['#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7', '#DDA0DD', '#FF9FF3'],
+            borderWidth: 2,
+            borderColor: '#fff'
+        }]
+    };
+    new Chart(pieCtx, {
+        type: 'doughnut',
+        data: pieData,
+        options: {
+            responsive: true,
+            animation: {
+                duration: 2000,
+                easing: 'easeInOutQuart'
+            },
+            plugins: { legend: { position: 'bottom' } }
+        }
+    });
+
+    // Bar Chart
+    const barCtx = document.getElementById('barChart').getContext('2d');
+    new Chart(barCtx, {
+        type: 'bar',
+        data: {
+            labels: [{% for d in monthly_data %}'{{ d.month }}',{% endfor %}],
+            datasets: [
+                {
+                    label: 'Income',
+                    data: [{% for d in monthly_data %}{{ d.income }},{% endfor %}],
+                    backgroundColor: 'rgba(34, 197, 94, 0.8)',
+                    borderRadius: 5,
+                    animation: {
+                        duration: 2000,
+                        easing: 'easeInOutQuart'
+                    }
+                },
+                {
+                    label: 'Expenses',
+                    data: [{% for d in monthly_data %}{{ d.expenses }},{% endfor %}],
+                    backgroundColor: 'rgba(239, 68, 68, 0.8)',
+                    borderRadius: 5,
+                    animation: {
+                        duration: 2000,
+                        easing: 'easeInOutQuart'
+                    }
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            plugins: { legend: { position: 'bottom' } },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: { callback: function(value) { return '$' + value; } }
+                }
+            }
+        }
+    });
+});
+</script>
+{% endblock %}
+{% endblock %}
