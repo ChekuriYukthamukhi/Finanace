@@ -1,33 +1,21 @@
-"""
-URL configuration for finance_pro project.
-
-The `urlpatterns` list routes URLs to views. For more information please see:
-    https://docs.djangoproject.com/en/4.2/topics/http/urls/
-Examples:
-Function views
-    1. Add an import:  from my_app import views
-    2. Add a URL to urlpatterns:  path('', views.home, name='home')
-Class-based views
-    1. Add an import:  from other_app.views import Home
-    2. Add a URL to urlpatterns:  path('', Home.as_view(), name='home')
-Including another URLconf
-    1. Import the include() function: from django.urls import include, path
-    2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
-"""
-from django.contrib import admin
-from django.urls import path, include
-from django.contrib.auth import views as auth_views
-from django.conf import settings
-from django.conf.urls.static import static
-from core import views
+from django.urls import path
+from . import views
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
-    path('', include('core.urls')),
-    path('login/', auth_views.LoginView.as_view(template_name='login.html'), name='login'),
-    path('logout/', auth_views.LogoutView.as_view(), name='logout'),
-    path('register/', views.register, name='register'),
+    path('', views.dashboard, name='dashboard'),
+    path('add/', views.add_transaction, name='add_transaction'),
+    path('edit/<int:pk>/', views.edit_transaction, name='edit_transaction'),
+    path('delete/<int:pk>/', views.delete_transaction, name='delete_transaction'),
+    path('transactions/', views.transaction_list, name='transaction_list'),
+    path('budgets/', views.budgets, name='budgets'),
+    path('savings-goals/', views.savings_goals, name='savings_goals'),
+    path('accounts/', views.accounts_view, name='accounts'),
+    path('wallets/', views.wallets_view, name='wallets'),
+    path('recurring/', views.recurring_transactions, name='recurring'),
+    path('reports/', views.reports, name='reports'),
+    path('export/', views.export_csv, name='export_csv'),
+    path('pdf-report/', views.generate_pdf_report, name='pdf_report'),
+    path('currency/', views.currency_converter, name='currency_converter'),
+    path('patterns/', views.spending_patterns, name='spending_patterns'),
+    path('budget-suggestions/', views.budget_suggestions, name='budget_suggestions'),
 ]
-
-if settings.DEBUG:
-    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
